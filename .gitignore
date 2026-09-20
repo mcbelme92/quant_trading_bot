@@ -1,0 +1,19 @@
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Datos masivos e históricos (Evita subir gigas de CSVs al repositorio)
+data/*
+!data/.gitkeep
+
+# Archivos de caché y compilados de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Configuraciones del editor y variables de entorno locales
+.vscode/
+.env
