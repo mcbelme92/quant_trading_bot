@@ -40,5 +40,5 @@ if __name__ == "__main__":
         symbol="EURUSD", 
         timeframe=mt5.TIMEFRAME_M1, 
         number_candles=50000, 
-        exit_route="data/raw/EURUSD_M1.csv"
+        exit_route="../data/raw/EURUSD_M1.csv"
     )
