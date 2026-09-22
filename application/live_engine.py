@@ -1,6 +1,5 @@
 # type: ignore 
 import time
-from datetime import datetime
 
 import MetaTrader5 as mt5
 import pandas as pd
@@ -9,7 +8,9 @@ import pandas as pd
 from domain.patterns.geometry_math import detectar_bandera_alcista
 from domain.risk_manager.position_sizer import calcular_lote
 from infrastructure.mt5_executor import ejecutar_orden_compra
+from infrastructure.utils.logger import obtener_logger
 
+logger = obtener_logger()
 
 def iniciar_bot_en_vivo(simbolo: str, balance_cuenta: float):
     """
@@ -17,14 +18,14 @@ def iniciar_bot_en_vivo(simbolo: str, balance_cuenta: float):
     la estrategia al cierre de cada vela.
     """
     if not mt5.initialize():
-        print("Fallo al conectar con MetaTrader 5.")
+        logger.error("Fallo al conectar con MetaTrader 5.")
         return
 
-    print("="*50)
-    print(f"🤖 QUANT BOT INICIADO EN VIVO")
-    print(f"Símbolo: {simbolo} | Timeframe: M1")
-    print(f"Cuenta Centavos (Simulada para riesgo): ${balance_cuenta}")
-    print("="*50)
+    logger.info("="*50)
+    logger.info("🤖 QUANT BOT INICIADO EN VIVO")
+    logger.info(f"Símbolo: {simbolo} | Timeframe: M1")
+    logger.info(f"Cuenta Centavos (Simulada para riesgo): ${balance_cuenta}")
+    logger.info("="*50)
 
     # Variable para recordar qué vela fue la última que procesamos
     ultima_vela_procesada = None
@@ -46,8 +47,8 @@ def iniciar_bot_en_vivo(simbolo: str, balance_cuenta: float):
             # 2. Sincronización: Solo evaluamos si detectamos que abrio una vela NUEVA.
             # Esto significa que la vela del minuto anterior acaba de cerrar definitivamente.
             if ultima_vela_procesada != tiempo_vela_actual:
-                hora_legible = datetime.fromtimestamp(tiempo_vela_actual).strftime('%H:%M:%S')
-                print(f"[{hora_legible}] Nueva vela detectada. Analizando las {velas_requeridas} velas anteriores...")
+              
+                logger.info(f"Nueva vela detectada. Analizando las {velas_requeridas} velas anteriores...")
 
                 # 3. Extraer solo las velas cerradas (pos=1 ignora la vela actual en formación)
                 tasas_cerradas = mt5.copy_rates_from_pos(simbolo, mt5.TIMEFRAME_M1, 1, velas_requeridas)
@@ -58,7 +59,7 @@ def iniciar_bot_en_vivo(simbolo: str, balance_cuenta: float):
                     
                     # 4. Evaluación del patrón geométrico
                     if detectar_bandera_alcista(df):
-                        print("🔥 ¡PATRÓN DE BANDERA ALCISTA CONFIRMADO!")
+                        logger.info("🔥 ¡PATRÓN DE BANDERA ALCISTA CONFIRMADO!")
                         
                         precio_entrada = df['close'].iloc[-1]
                         precio_minimo_bandera = df.iloc[-14:]['low'].min()
@@ -87,7 +88,7 @@ def iniciar_bot_en_vivo(simbolo: str, balance_cuenta: float):
             time.sleep(1)
 
     except KeyboardInterrupt:
-        print("\nDeteniendo bot...")
+        logger.info("\nDeteniendo bot...")
         mt5.shutdown()
 
 if __name__ == "__main__":
